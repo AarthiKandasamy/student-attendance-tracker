@@ -7,5 +7,3 @@
 <li>Student Check-In and Check-Out</li> 
 <li>Real-Time Attendance Dashboard</li>
 <li>Automated Reports & Notifications</li><br>
-<b>Screenshots</b>
-<img src="ss1.png"/>
