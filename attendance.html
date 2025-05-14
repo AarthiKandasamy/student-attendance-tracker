@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: pink;
+    }
+  </style>
+  <title>Cloud Attendance Tracker</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+  <center>
+
+  <h2>Student Attendance (Cloud Version)</h2>
+
+  <input type="text" id="studentName" placeholder="Enter student name">
+  <button onclick="addStudent()">Add Student</button>
+
+  <br><br>
+  <label>Select Date:</label>
+  <input type="date" id="attendanceDate">
+
+  <table border="1" id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Present</th>
+        <th>Absent</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCY3NrGfMwU4f9kQ-N4e4H6M558Esav7Gk",
+      authDomain: "aaruarchu-eadc3.firebaseapp.com",
+      projectId: "aaruarchu-eadc3",
+      storageBucket: "aaruarchu-eadc3.firebasestorage.app",
+      messagingSenderId: "253217973723",
+      appId: "1:253217973723:web:7c78fcb4ee22c8da27b3fe"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const attendanceDateInput = document.getElementById("attendanceDate");
+    attendanceDateInput.valueAsDate = new Date();
+
+    let students = [];
+
+    function renderTable() {
+      const tbody = document.querySelector("#attendanceTable tbody");
+      tbody.innerHTML = "";
+
+      students.forEach((student, index) => {
+        const row = document.createElement("tr");
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = student.name;
+
+        const presentCell = document.createElement("td");
+        const presentBtn = document.createElement("button");
+        presentBtn.textContent = "✔️";
+        presentBtn.onclick = () => markAttendance(student.name, "Present");
+
+        const absentCell = document.createElement("td");
+        const absentBtn = document.createElement("button");
+        absentBtn.textContent = "❌";
+        absentBtn.onclick = () => markAttendance(student.name, "Absent");
+
+        presentCell.appendChild(presentBtn);
+        absentCell.appendChild(absentBtn);
+
+        row.appendChild(nameCell);
+        row.appendChild(presentCell);
+        row.appendChild(absentCell);
+        tbody.appendChild(row);
+      });
+    }
+
+    function addStudent() {
+      const nameInput = document.getElementById("studentName");
+      const name = nameInput.value.trim();
+      if (name === "") {
+        alert("Please enter a student name.");
+        return;
+      }
+
+      students.push({ name: name });
+      nameInput.value = "";
+      renderTable();
+    }
+
+    function markAttendance(name, status) {
+      const selectedDate = new Date(attendanceDateInput.value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+
+      if (selectedDate.getTime() !== today.getTime()) {
+        alert("You can only mark attendance for today's date.");
+        return;
+      }
+
+      db.collection("attendance").add({
+        name: name,
+        status: status,
+        date: attendanceDateInput.value
+      }).then(() => {
+        alert(`${name} marked ${status} on ${attendanceDateInput.value}`);
+      }).catch((error) => {
+        console.error("Error writing to Firestore:", error);
+      });
+    }
+
+    renderTable();
+  </script>
+  </center>
+</body>
+</html>
